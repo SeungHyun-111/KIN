@@ -4,6 +4,7 @@ import FilterBar from "./components/FilterBar";
 import CalendarMonth from "./components/CalendarMonth";
 import SearchSidebar from "./components/SearchSidebar";
 import Detail from "./routes/Detail";
+import LoadingScreen from "./components/LoadingScreen";
 import { fetchList } from "./services/api";
 
 function normalizeText(value = "") {
@@ -12,8 +13,8 @@ function normalizeText(value = "") {
 
 function normalizeDateValue(value = "") {
   const raw = String(value).trim();
-
   const m = raw.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
+
   if (!m) return "";
 
   const year = m[1];
@@ -32,14 +33,10 @@ function normalizeTimeValue(value = "") {
   const raw = String(value).trim();
 
   let m = raw.match(/^(\d{1,2})\s*시$/);
-  if (m) {
-    return `${String(m[1]).padStart(2, "0")}시`;
-  }
+  if (m) return `${String(m[1]).padStart(2, "0")}시`;
 
   m = raw.match(/^(\d{1,2}):(\d{2})$/);
-  if (m) {
-    return `${String(m[1]).padStart(2, "0")}시`;
-  }
+  if (m) return `${String(m[1]).padStart(2, "0")}시`;
 
   return raw;
 }
@@ -53,6 +50,7 @@ function sortRows(list = []) {
   return [...list].sort((a, b) => {
     const da = normalizeDateValue(a.requestDate);
     const db = normalizeDateValue(b.requestDate);
+
     if (da < db) return -1;
     if (da > db) return 1;
 
@@ -71,11 +69,13 @@ function sortRows(list = []) {
 
     const oa = String(a.orgName || "").trim();
     const ob = String(b.orgName || "").trim();
+
     if (oa < ob) return -1;
     if (oa > ob) return 1;
 
     const na = String(a.scheduleCodeName || "").trim();
     const nb = String(b.scheduleCodeName || "").trim();
+
     if (na < nb) return -1;
     if (na > nb) return 1;
 
@@ -173,6 +173,7 @@ function MainPage() {
 
   const statuses = useMemo(() => {
     const base = ["검토", "조정요청", "확정", "반려", "추가"];
+
     return [
       ...new Set([
         ...base,
@@ -229,8 +230,8 @@ function MainPage() {
     window.open(url, "_blank", "width=1400,height=900");
   }
 
-  function handleDateClick(dateKey) {
-    openDetailByDate(dateKey);
+  function handleDateClick(date) {
+    openDetailByDate(date);
   }
 
   function handleItemClick(item) {
@@ -280,53 +281,60 @@ function MainPage() {
           committing={false}
         />
 
-        {loading && <div className="state-box">불러오는 중...</div>}
-        {error && !loading && <div className="state-box error">{error}</div>}
+        {error && <div className="state-box error">{error}</div>}
 
-        {!loading && (
-          <>
-            <div className="page-summary">
-              <div className="summary-card">
-                <div className="summary-card__label">대상 월</div>
-                <div className="summary-card__value">{pageMonthLabel}</div>
-              </div>
+        <div className="page-summary">
+          <div className="summary-card">
+            <div className="summary-card__label">대상 월</div>
+            <div className="summary-card__value">{pageMonthLabel}</div>
+          </div>
 
-              <div className="summary-card">
-                <div className="summary-card__label">조회 건수</div>
-                <div className="summary-card__value">
-                  {filteredRows.length}건
-                </div>
-              </div>
+          <div className="summary-card">
+            <div className="summary-card__label">조회 건수</div>
+            <div className="summary-card__value">{filteredRows.length}건</div>
+          </div>
 
-              <div className="summary-card">
-                <div className="summary-card__label">검색어</div>
-                <div className="summary-card__value">{keyword || "-"}</div>
-              </div>
-            </div>
+          <div className="summary-card">
+            <div className="summary-card__label">검색어</div>
+            <div className="summary-card__value">{keyword || "-"}</div>
+          </div>
+        </div>
 
-            <div
-              className={`main-layout ${
-                hasKeyword ? "has-sidebar" : "no-sidebar"
-              }`}
-            >
-              <div className="main-layout__calendar">
-                <CalendarMonth
-                  month={pageMonth}
-                  rows={filteredRows}
-                  onDateClick={handleDateClick}
-                  onItemClick={handleItemClick}
-                />
-              </div>
+        <div
+          className={`main-layout ${hasKeyword ? "has-sidebar" : "no-sidebar"}`}
+        >
+          <div className="main-layout__calendar">
+            <CalendarMonth
+              month={pageMonth}
+              rows={filteredRows}
+              onDateClick={handleDateClick}
+              onItemClick={handleItemClick}
+            />
+          </div>
 
-              {hasKeyword && (
-                <SearchSidebar
-                  keyword={keyword}
-                  rows={sidebarRows}
-                  onItemClick={handleSearchItemClick}
-                />
-              )}
-            </div>
-          </>
+          {hasKeyword && (
+            <SearchSidebar
+              keyword={keyword}
+              rows={sidebarRows}
+              onItemClick={handleSearchItemClick}
+            />
+          )}
+        </div>
+
+        {loading && (
+          <LoadingScreen
+            overlay
+            text="로딩 중..."
+            subText="조금만 기다려주세요!"
+          />
+        )}
+
+        {refreshing && (
+          <LoadingScreen
+            overlay
+            text="새로고침 중..."
+            subText="최신 데이터를 다시 불러오고 있어요!"
+          />
         )}
       </main>
     </div>

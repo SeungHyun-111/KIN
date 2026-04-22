@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { addItem, commitOverlay, fetchList } from "../services/api";
 import AddItemModal from "../components/AddItemModal";
+import LoadingScreen from "../components/LoadingScreen";
 
 function normalizeDateValue(value = "") {
   return String(value).trim().replace(/\//g, "-").slice(0, 10);
@@ -22,6 +23,7 @@ function sortRowsByTime(list) {
 
     const oa = String(a.orgName || "").trim();
     const ob = String(b.orgName || "").trim();
+
     if (oa < ob) return -1;
     if (oa > ob) return 1;
 
@@ -101,17 +103,13 @@ export default function Detail() {
 
   function handleStatusChange(id, value) {
     setDraftRows((prev) =>
-      prev.map((row) =>
-        row.id === id ? { ...row, status: value } : row
-      )
+      prev.map((row) => (row.id === id ? { ...row, status: value } : row))
     );
   }
 
   function handleOpinionChange(id, value) {
     setDraftRows((prev) =>
-      prev.map((row) =>
-        row.id === id ? { ...row, opinion: value } : row
-      )
+      prev.map((row) => (row.id === id ? { ...row, opinion: value } : row))
     );
   }
 
@@ -188,7 +186,11 @@ export default function Detail() {
         opinion: String(form.opinion || "").trim(),
       };
 
-      if (!payload.requestTimeBand || !payload.orgName || !payload.scheduleCodeName) {
+      if (
+        !payload.requestTimeBand ||
+        !payload.orgName ||
+        !payload.scheduleCodeName
+      ) {
         window.alert("시간, 조직, 아이템명은 필수입니다.");
         return false;
       }
@@ -234,7 +236,9 @@ export default function Detail() {
             onClick={handleSave}
             disabled={saving}
           >
-            {saving ? "저장 중..." : `저장${changedCount > 0 ? ` (${changedCount})` : ""}`}
+            {saving
+              ? "저장 중..."
+              : `저장${changedCount > 0 ? ` (${changedCount})` : ""}`}
           </button>
 
           <button
@@ -262,12 +266,8 @@ export default function Detail() {
           </div>
         </div>
 
-        {loading ? (
-          <div className="detail-table__empty">불러오는 중...</div>
-        ) : draftRows.length === 0 ? (
-          <div className="detail-table__empty">
-            해당 날짜 데이터가 없습니다.
-          </div>
+        {draftRows.length === 0 ? (
+          <div className="detail-table__empty">해당 날짜 데이터가 없습니다.</div>
         ) : (
           <div className="detail-table__body">
             {draftRows.map((row) => (
@@ -316,6 +316,22 @@ export default function Detail() {
         onClose={() => setIsAddOpen(false)}
         onSubmit={handleAddItem}
       />
+
+      {loading && (
+        <LoadingScreen
+          overlay
+          text="상세 화면 로딩 중..."
+          subText="해당 날짜 데이터를 불러오고 있어요!"
+        />
+      )}
+
+      {saving && (
+        <LoadingScreen
+          overlay
+          text="저장 중..."
+          subText="변경사항을 반영하고 있어요!"
+        />
+      )}
     </div>
   );
 }
