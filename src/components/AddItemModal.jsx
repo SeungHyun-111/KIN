@@ -4,6 +4,7 @@ export default function AddItemModal({ isOpen, onClose, onSubmit }) {
   const [requestTimeBand, setRequestTimeBand] = useState("");
   const [orgName, setOrgName] = useState("");
   const [scheduleCodeName, setScheduleCodeName] = useState("");
+  const [dealType, setDealType] = useState("");
   const [status, setStatus] = useState("추가");
   const [opinion, setOpinion] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -13,6 +14,7 @@ export default function AddItemModal({ isOpen, onClose, onSubmit }) {
       setRequestTimeBand("");
       setOrgName("");
       setScheduleCodeName("");
+      setDealType("");
       setStatus("추가");
       setOpinion("");
       setSubmitting(false);
@@ -36,6 +38,7 @@ export default function AddItemModal({ isOpen, onClose, onSubmit }) {
         requestTimeBand,
         orgName,
         scheduleCodeName,
+        dealType,
         status,
         opinion,
       });
@@ -81,6 +84,16 @@ export default function AddItemModal({ isOpen, onClose, onSubmit }) {
                 value={orgName}
                 onChange={(e) => setOrgName(e.target.value)}
                 placeholder="예: 문화서비스"
+              />
+            </div>
+
+            <div className="add-modal__field">
+              <label>거래형태</label>
+              <input
+                type="text"
+                value={dealType}
+                onChange={(e) => setDealType(e.target.value)}
+                placeholder="예: 직매입 / 위수탁 / 혼합"
               />
             </div>
 

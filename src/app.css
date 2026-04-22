@@ -588,6 +588,21 @@ select {
   color: #166534;
 }
 
+.detail-select.status-confirm {
+  background: #111827;
+  color: #fff;
+}
+
+.detail-select.status-adjust {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.detail-select.status-reject {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
 .detail-page {
   padding: 20px;
   background: #fff;
@@ -1205,4 +1220,8 @@ select {
     transform: rotate(calc(var(--i) * 45deg)) translateY(-22px)
       scale(calc(0.45 + (var(--i) * 0.06)));
   }
+}
+.summary-sub {
+  color: #9ca3af; /* 흐리게 */
+  font-weight: 500;
 }

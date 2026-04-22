@@ -225,6 +225,35 @@ function MainPage() {
     return filteredRows;
   }, [filteredRows, hasKeyword]);
 
+  const statusSummary = useMemo(() => {
+    const counts = {
+      검토: 0,
+      조정요청: 0,
+      확정: 0,
+      반려: 0,
+      추가: 0,
+    };
+
+    filteredRows.forEach((row) => {
+      const rowStatus = getStatusValue(row.status);
+      if (counts[rowStatus] !== undefined) {
+        counts[rowStatus] += 1;
+      }
+    });
+
+    return counts;
+  }, [filteredRows]);
+
+  const commitCount = useMemo(() => {
+    return (
+      statusSummary.검토 +
+      statusSummary.조정요청 +
+      statusSummary.확정 +
+      statusSummary.반려 +
+      statusSummary.추가
+    );
+  }, [statusSummary]);
+
   function openDetailByDate(date) {
     const url = `/detail?date=${date}`;
     window.open(url, "_blank", "width=1400,height=900");
@@ -248,6 +277,10 @@ function MainPage() {
 
   function handleRefresh() {
     loadData(true);
+  }
+
+  function handleCommit() {
+    window.alert("전송 기능은 아직 연결되지 않았습니다.");
   }
 
   const pageMonth = month || "-";
@@ -276,8 +309,8 @@ function MainPage() {
           statuses={statuses}
           onRefresh={handleRefresh}
           refreshing={refreshing}
-          commitCount={0}
-          onCommit={() => {}}
+          commitCount={commitCount}
+          onCommit={handleCommit}
           committing={false}
         />
 
@@ -291,7 +324,16 @@ function MainPage() {
 
           <div className="summary-card">
             <div className="summary-card__label">조회 건수</div>
-            <div className="summary-card__value">{filteredRows.length}건</div>
+            <div className="summary-card__value">
+              <strong>총 {filteredRows.length}건</strong>
+              <span className="summary-sub">
+                {" "}| 검토 {statusSummary.검토}
+                {" "}| 조정요청 {statusSummary.조정요청}
+                {" "}| 확정 {statusSummary.확정}
+                {" "}| 반려 {statusSummary.반려}
+                {" "}| 추가 {statusSummary.추가}
+              </span>
+            </div>
           </div>
 
           <div className="summary-card">

@@ -1,5 +1,5 @@
 const API_URL =
-  "https://script.google.com/macros/s/AKfycbyrdH0pSS_jQ--m9RyuNfp2wm475Xyd8tUxQuJK_4zvOqC-0GZYdpgYE-o0vMXSnQkEQA/exec";
+  "https://script.google.com/macros/s/AKfycbwEG9KsmBuoRmBz3pWp8ZGVJV1Zqfo-LNiecakIVYyPh_Iq3_LDvNya7MQR-ST40oOPDA/exec";
 
 // 조회
 export async function fetchList() {

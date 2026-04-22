@@ -2,6 +2,19 @@ function pad(value) {
   return String(value).padStart(2, "0");
 }
 
+function normalizeDateValue(value = "") {
+  const raw = String(value).trim();
+  const m = raw.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
+
+  if (!m) return "";
+
+  const year = m[1];
+  const month = String(m[2]).padStart(2, "0");
+  const day = String(m[3]).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 function formatDateKey(date) {
   const y = date.getFullYear();
   const m = pad(date.getMonth() + 1);
@@ -10,6 +23,13 @@ function formatDateKey(date) {
 }
 
 function buildCalendarDays(monthValue) {
+  if (!monthValue || !/^\d{4}-\d{2}$/.test(monthValue)) {
+    return {
+      monthLabel: "-",
+      cells: [],
+    };
+  }
+
   const [year, month] = monthValue.split("-").map(Number);
 
   const firstDate = new Date(year, month - 1, 1);
@@ -56,11 +76,13 @@ function getOrgShortName(value = "") {
   return text.length > 2 ? text.slice(0, 2) : text;
 }
 
-export default function CalendarMonth({ month, rows, onDateClick, onItemClick }) {
+export default function CalendarMonth({ month, rows = [], onDateClick, onItemClick }) {
   const { monthLabel, cells } = buildCalendarDays(month);
 
   const rowsByDate = rows.reduce((acc, row) => {
-    const key = String(row.requestDate || "").replace(/\//g, "-").slice(0, 10);
+    const key = normalizeDateValue(row.requestDate);
+    if (!key) return acc;
+
     if (!acc[key]) acc[key] = [];
     acc[key].push(row);
     return acc;
@@ -78,9 +100,7 @@ export default function CalendarMonth({ month, rows, onDateClick, onItemClick })
         {weekDays.map((day, index) => (
           <div
             key={day}
-            className={`calendar-weekday ${index === 5 ? "is-sat" : ""} ${
-              index === 6 ? "is-sun" : ""
-            }`}
+            className={`calendar-weekday ${index === 5 ? "is-sat" : ""} ${index === 6 ? "is-sun" : ""}`}
           >
             {day}
           </div>
@@ -98,10 +118,8 @@ export default function CalendarMonth({ month, rows, onDateClick, onItemClick })
             >
               <button
                 type="button"
-                className={`calendar-date ${cell.isSunday ? "is-sun" : ""} ${
-                  cell.isSaturday ? "is-sat" : ""
-                }`}
-                onClick={() => onDateClick(cell.dateKey)}
+                className={`calendar-date ${cell.isSunday ? "is-sun" : ""} ${cell.isSaturday ? "is-sat" : ""}`}
+                onClick={() => onDateClick?.(cell.dateKey)}
               >
                 {cell.date.getDate()}
               </button>
@@ -115,7 +133,7 @@ export default function CalendarMonth({ month, rows, onDateClick, onItemClick })
                       key={item.id}
                       type="button"
                       className={`calendar-item ${getStatusClass(item.status)}`}
-                      onClick={() => onItemClick(item)}
+                      onClick={() => onItemClick?.(item)}
                       title={`${item.requestTimeBand || ""} | ${item.orgName || ""} | ${item.scheduleCodeName || ""}`}
                     >
                       <span className="calendar-item__badge">

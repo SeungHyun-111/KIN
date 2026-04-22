@@ -13,9 +13,6 @@ export default function FilterBar(props) {
     statuses,
     onRefresh,
     refreshing,
-    commitCount = 0,
-    onCommit,
-    committing = false,
   } = props;
 
   return (
@@ -74,15 +71,6 @@ export default function FilterBar(props) {
           disabled={refreshing}
         >
           {refreshing ? "불러오는 중..." : "데이터 새로고침"}
-        </button>
-
-        <button
-          type="button"
-          className="action-button action-button--commit"
-          onClick={onCommit}
-          disabled={committing || commitCount === 0}
-        >
-          {committing ? "전송 중..." : `전송 (${commitCount})`}
         </button>
       </div>
     </div>
